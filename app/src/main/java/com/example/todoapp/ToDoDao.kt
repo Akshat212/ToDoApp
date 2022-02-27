@@ -11,7 +11,7 @@ interface ToDoDao {
     @Insert()
     suspend fun insertTask(toDoModel: ToDoModel) : Long
 
-    @Query("Select * from ToDoModel Where NOT isFinished = -1")
+    @Query("Select * from ToDoModel")
     fun getTask() : LiveData<List<ToDoModel>>
 
     @Query("Update ToDoModel Set isFinished = 1 Where id=:uid")

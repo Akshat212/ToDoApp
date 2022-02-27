@@ -3,17 +3,22 @@ package com.example.todoapp
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.room.Room
+import com.example.todoapp.AppDatabase.Companion.getInstance
 import kotlinx.android.synthetic.main.activity_task.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-const val DB_Name = "todo.db"
+
 class TaskActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var myCalendar : Calendar
@@ -22,12 +27,11 @@ class TaskActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var timeSetListener: TimePickerDialog.OnTimeSetListener
 
+    var finalTime : Long = 0L
+    var finalDate : Long = 0L
+
     val db by lazy {
-        Room.databaseBuilder(
-                this,
-                AppDatabase::class.java,
-                DB_Name
-        )
+        getInstance(this)
     }
 
     var categories = arrayOf("Bank","Alarm","Meeting","Studying")
@@ -36,17 +40,48 @@ class TaskActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task)
 
+        setUpSpinner()
+
         dateEdt.setOnClickListener(this)
         timeEdt.setOnClickListener(this)
+        saveBtn.setOnClickListener(this)
 
-        setUpSpinner()
+    }
+
+    override fun onClick(view: View?) {
+        when(view?.id) {
+            R.id.dateEdt -> {
+                setDateListener()
+            }
+
+            R.id.timeEdt -> {
+                setTimeListener()
+            }
+
+            R.id.saveBtn -> {
+                insertDataDb()
+            }
+        }
+    }
+
+    private fun insertDataDb() {
+        val category = spinnerCategory.selectedItem.toString()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val todoModel = ToDoModel(etTitle.text.toString(),etDesc.text.toString(),finalDate,
+                                        finalTime,category)
+
+            val id = db.todoDao().insertTask(todoModel)
+        }
+
+        finish()
     }
 
     private fun setUpSpinner() {
         val adapter = ArrayAdapter<String>(
-            this,
-            android.R.layout.simple_spinner_item,
-            categories
+                this,
+                android.R.layout.simple_spinner_item,
+                categories
         )
 
         categories.sort()
@@ -62,18 +97,6 @@ class TaskActivity : AppCompatActivity(), View.OnClickListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
 
-        }
-    }
-
-    override fun onClick(view: View?) {
-        when(view?.id) {
-            R.id.dateEdt -> {
-                setDateListener()
-            }
-
-            R.id.timeEdt -> {
-                setTimeListener()
-            }
         }
     }
 
@@ -96,6 +119,8 @@ class TaskActivity : AppCompatActivity(), View.OnClickListener {
     private fun updateTimeFormat() {
         val time = "h:m a"
         val sdf = SimpleDateFormat(time)
+
+        finalTime = myCalendar.time.time
 
         timeEdt.setText(sdf.format(myCalendar.time))
     }
@@ -122,6 +147,8 @@ class TaskActivity : AppCompatActivity(), View.OnClickListener {
         val format = "EEE, d MMM yyyy"
 
         val sdf = SimpleDateFormat(format)
+
+        finalDate = myCalendar.time.time
 
         dateEdt.setText(sdf.format(myCalendar.time))
         timeInptLay.visibility = View.VISIBLE

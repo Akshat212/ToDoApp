@@ -9,8 +9,8 @@ data class ToDoModel(
     var description : String,
     var date : Long,
     var time : Long,
-    var isFinished : Int = -1,
     var category : String,
+    var isFinished : Int = -1,
 
     @PrimaryKey(autoGenerate = true)
     var id : Long = 0L
