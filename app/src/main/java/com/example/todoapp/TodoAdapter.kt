@@ -18,6 +18,10 @@ class TodoAdapter(val list : List<ToDoModel>) : RecyclerView.Adapter<TodoAdapter
         holder.bind(list[position])
     }
 
+    override fun getItemId(position: Int): Long {
+        return list[position].id
+    }
+
     override fun getItemCount(): Int = list.size
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

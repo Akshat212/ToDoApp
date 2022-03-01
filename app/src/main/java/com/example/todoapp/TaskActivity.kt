@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.example.todoapp.AppDatabase.Companion.getInstance
 import kotlinx.android.synthetic.main.activity_task.*
