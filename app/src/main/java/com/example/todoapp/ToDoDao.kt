@@ -14,6 +14,9 @@ interface ToDoDao {
     @Query("Select * from ToDoModel where isFinished = 0")
     fun getTask():LiveData<List<ToDoModel>>
 
+    @Query("Select * from ToDoModel where isFinished = 1")
+    fun getFinishedTask():LiveData<List<ToDoModel>>
+
     @Query("Update ToDoModel Set isFinished = 1 where id=:uid")
     fun finishTask(uid:Long)
 
